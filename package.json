@@ -1,5 +1,5 @@
 {
-  "name": "nodejs",
+  "name": "halo-plann.er-api",
   "version": "1.0.0",
   "main": "build/src/index.js",
   "scripts": {
