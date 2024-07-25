@@ -39,7 +39,7 @@ export const confirmTrip = async (app: FastifyInstance) => {
         }
 
         if (trip.is_confirmed) {
-          return reply.redirect(`${env.WEB_BASE_URL}rips/${tripId}`)
+          return reply.redirect(`${env.WEB_BASE_URL}/trips/${tripId}`)
         }
 
         const owner = trip.participants.find(participant => participant.is_owner === true)
