@@ -12,66 +12,84 @@ import { env } from "../../../env";
 
 export const confirmTrip = async (app: FastifyInstance) => {
   app
-  .withTypeProvider<ZodTypeProvider>()
-  .get(
-    '/trips/:tripId/confirm', 
-    {
-      schema: {
-        params: z.object({
-          tripId: z.string().uuid()
-        }),
-      }
-    }, 
-    async (request, reply) => {
-      const { tripId } = request.params
+    .withTypeProvider<ZodTypeProvider>()
+    .get(
+      '/trips/:tripId/confirm',
+      {
+        schema: {
+          params: z.object({
+            tripId: z.string().uuid()
+          }),
+        }
+      },
+      async (request, reply) => {
+        const { tripId } = request.params
 
-      const trip = await prisma.trip.findUnique({
-        where: {
-          id: tripId
-        },
-        include: {
-          participants: {
-            where: {
-              is_owner: false
+        const trip = await prisma.trip.findUnique({
+          where: {
+            id: tripId
+          },
+          include: {
+            participants: {
+              where: {
+                is_owner: false
+              }
             }
           }
+        })
+
+        if (!trip) {
+          throw new BadRequestError('Trip not found.')
         }
-      })
 
-      if(!trip) {
-        throw new BadRequestError('Trip not found.')
-      }
-
-      if(trip.is_confirmed) {
-        return reply.redirect(`${env.WEB_BASE_URL}rips/${tripId}`)
-      }
-
-      await prisma.trip.update({
-        where: {
-          id: tripId,
-        },
-        data: {
-          is_confirmed: true
+        if (trip.is_confirmed) {
+          return reply.redirect(`${env.WEB_BASE_URL}rips/${tripId}`)
         }
-      })
 
-      const formatedStartDate = dayjs(trip.starts_at).format('LL')
-      const formatedEndDate = dayjs(trip.ends_at).format('LL')
+        const owner = trip.participants.find(participant => participant.is_owner === true)
 
-      const mail = await getMailClient()
+        if (!owner) {
+          throw new BadRequestError('Owner not found')
+        }
 
-      await Promise.all(
-        trip.participants.map(async participant => {
-          const confimationLink = `${env.API_BASE_URL}/participants/${participant.id}/confirm`
-
-          const message = await mail.sendMail({
-            from: {
-              name: 'Equipe Plann.er',
-              address: 'oi@plann.er'
+        await prisma.$transaction([
+          prisma.trip.update({
+            where: {
+              id: tripId,
             },
-            to: participant.email,
-            subject: `Confirme sua presença na viagem para ${trip.destination} em ${formatedStartDate}`,
-            html: `
+            data: {
+              is_confirmed: true,
+            }
+          }),
+          prisma.participant.update({
+            where: {
+              id: owner.id,
+              trip_id: tripId,
+              is_owner: true
+            },
+            data: {
+              is_confirmed: true,
+            }
+          })
+        ])
+
+        const formatedStartDate = dayjs(trip.starts_at).format('LL')
+        const formatedEndDate = dayjs(trip.ends_at).format('LL')
+
+        const mail = await getMailClient()
+
+        await Promise.all(
+          trip.participants.map(async participant => {
+            const confimationLink = `${env.API_BASE_URL}/participants/${participant.id}/confirm`
+
+            const message = await mail.sendMail({
+              from: {
+                name: 'Equipe Plann.er',
+                address: 'oi@plann.er'
+              },
+              to: participant.email,
+              subject: `Confirme sua presença na viagem para ${trip.destination} em ${formatedStartDate}`,
+              html: `
               <div style="font-family: sans-serif; font-size: 16px; line-height: 1.6;">
                 <p>Você foi convidado(a) para participar de uma viagem para <strong>${trip.destination}</strong> nas datas de <strong>${formatedStartDate}</strong> até <strong>${formatedEndDate}</strong>.</p>
                 <p></p>
@@ -86,15 +104,15 @@ export const confirmTrip = async (app: FastifyInstance) => {
                 <p>Caso você não saiba do que se trata esse email, apenas ignore esse e-mail.</p>
               </div>
             `.trim()
-          })
+            })
 
-          console.log(nodemailer.getTestMessageUrl(message))
+            console.log(nodemailer.getTestMessageUrl(message))
 
-          return message
-        }
-      ))
+            return message
+          }
+          ))
 
 
-      return reply.redirect(`${env.WEB_BASE_URL}/trips/${tripId}`)
-    })
+        return reply.redirect(`${env.WEB_BASE_URL}/trips/${tripId}`)
+      })
 }
