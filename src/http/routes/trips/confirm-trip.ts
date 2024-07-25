@@ -30,11 +30,7 @@ export const confirmTrip = async (app: FastifyInstance) => {
             id: tripId
           },
           include: {
-            participants: {
-              where: {
-                is_owner: false
-              }
-            }
+            participants: true
           }
         })
 
@@ -80,6 +76,8 @@ export const confirmTrip = async (app: FastifyInstance) => {
 
         await Promise.all(
           trip.participants.map(async participant => {
+            if (participant.is_owner === true) return
+
             const confimationLink = `${env.API_BASE_URL}/participants/${participant.id}/confirm`
 
             const message = await mail.sendMail({
@@ -106,7 +104,7 @@ export const confirmTrip = async (app: FastifyInstance) => {
             `.trim()
             })
 
-            console.log(nodemailer.getTestMessageUrl(message))
+            console.log('confirm participation:' + nodemailer.getTestMessageUrl(message))
 
             return message
           }

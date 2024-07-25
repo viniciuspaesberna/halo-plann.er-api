@@ -110,7 +110,7 @@ export const createTrip = async (app: FastifyInstance) => {
         `.trim()
         })
 
-        console.log(nodemailer.getTestMessageUrl(message))
+        console.log('confirm trip:' + nodemailer.getTestMessageUrl(message))
 
         return { tripId: trip.id }
       })
