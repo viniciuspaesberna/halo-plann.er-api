@@ -9,42 +9,49 @@ import { env } from "../../../env";
 
 export const confirmParticipant = async (app: FastifyInstance) => {
   app
-  .withTypeProvider<ZodTypeProvider>()
-  .get(
-    '/participants/:participantId/confirm', 
-    {
-      schema: {
-        params: z.object({
-          participantId: z.string().uuid()
-        }),
-      }
-    }, 
-    async (request, reply) => {
-      const { participantId } = request.params
-
-      const participant = await prisma.participant.findUnique({
-        where: {
-          id: participantId
-        },
-      })
-
-      if(!participant) {
-        throw new BadRequestError('Participant not found.')
-      }
-
-      if(participant.is_confirmed) {
-        return reply.redirect(`${env.WEB_BASE_URL}/trips/${participant.trip_id}`)
-      }
-
-      await prisma.participant.update({
-        where: {
-          id: participant.id,
-        },
-        data: {
-          is_confirmed: true
+    .withTypeProvider<ZodTypeProvider>()
+    .put(
+      '/participants/:participantId/confirm',
+      {
+        schema: {
+          params: z.object({
+            participantId: z.string().uuid()
+          }),
+          body: z.object({
+            name: z.string().min(3).optional(),
+            email: z.string().email()
+          }),
         }
-      })
+      },
+      async (request, reply) => {
+        const { participantId } = request.params
+        const { name, email } = request.body
 
-      return reply.redirect(`${env.WEB_BASE_URL}/trips/${participant.trip_id}`)
-    })
+        const participant = await prisma.participant.findUnique({
+          where: {
+            id: participantId
+          },
+        })
+
+        if (!participant) {
+          throw new BadRequestError('Participant not found.')
+        }
+
+        if (participant.is_confirmed) {
+          return reply.redirect(`${env.WEB_BASE_URL}/trips/${participant.trip_id}`)
+        }
+
+        await prisma.participant.update({
+          where: {
+            id: participant.id,
+            email,
+          },
+          data: {
+            name,
+            is_confirmed: true
+          }
+        })
+
+        return { participantId: participant.id }
+      })
 }

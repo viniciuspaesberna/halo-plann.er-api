@@ -78,7 +78,7 @@ export const confirmTrip = async (app: FastifyInstance) => {
           trip.participants.map(async participant => {
             if (participant.is_owner === true) return
 
-            const confimationLink = `${env.API_BASE_URL}/participants/${participant.id}/confirm`
+            const confimationLink = `${env.WEB_BASE_URL}/trips/${trip.id}/participants/${participant.id}/confirm?email=${participant.email}`
 
             const message = await mail.sendMail({
               from: {
