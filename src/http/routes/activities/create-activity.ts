@@ -1,11 +1,10 @@
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
-
 import { z } from 'zod'
 
-import { BadRequestError } from '../../_errors/bad-request-error'
-import { prisma } from '../../../lib/prisma'
 import { dayjs } from '../../../lib/dayjs'
+import { prisma } from '../../../lib/prisma'
+import { BadRequestError } from '../../_errors/bad-request-error'
 
 export async function createActivity(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().post(
@@ -26,7 +25,7 @@ export async function createActivity(app: FastifyInstance) {
       const { title, occurs_at } = request.body
 
       const trip = await prisma.trip.findUnique({
-        where: { id: tripId }
+        where: { id: tripId },
       })
 
       if (!trip) {
@@ -46,7 +45,7 @@ export async function createActivity(app: FastifyInstance) {
           title,
           occurs_at,
           trip_id: tripId,
-        }
+        },
       })
 
       return { activityId: activity.id }

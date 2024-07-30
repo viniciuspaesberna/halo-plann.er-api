@@ -1,14 +1,13 @@
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
-
 import nodemailer from 'nodemailer'
 import { z } from 'zod'
 
-import { BadRequestError } from '../../_errors/bad-request-error'
-import { prisma } from '../../../lib/prisma'
+import { env } from '../../../env'
 import { dayjs } from '../../../lib/dayjs'
 import { getMailClient } from '../../../lib/mail'
-import { env } from '../../../env'
+import { prisma } from '../../../lib/prisma'
+import { BadRequestError } from '../../_errors/bad-request-error'
 
 export async function createInvite(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().post(
@@ -28,7 +27,7 @@ export async function createInvite(app: FastifyInstance) {
       const { email } = request.body
 
       const trip = await prisma.trip.findUnique({
-        where: { id: tripId }
+        where: { id: tripId },
       })
 
       if (!trip) {
@@ -38,8 +37,8 @@ export async function createInvite(app: FastifyInstance) {
       const participant = await prisma.participant.create({
         data: {
           email,
-          trip_id: tripId
-        }
+          trip_id: tripId,
+        },
       })
 
       const formatedStartDate = dayjs(trip.starts_at).format('LL')
@@ -47,13 +46,12 @@ export async function createInvite(app: FastifyInstance) {
 
       const mail = await getMailClient()
 
-
       const confimationLink = `${env.API_BASE_URL}/participants/${participant.id}/confirm`
 
       const message = await mail.sendMail({
         from: {
           name: 'Equipe Plann.er',
-          address: 'oi@plann.er'
+          address: 'oi@plann.er',
         },
         to: participant.email,
         subject: `Confirme sua presença na viagem para ${trip.destination} em ${formatedStartDate}`,
@@ -71,7 +69,7 @@ export async function createInvite(app: FastifyInstance) {
             <p></p>
             <p>Caso você não saiba do que se trata esse email, apenas ignore esse e-mail.</p>
           </div>
-        `.trim()
+        `.trim(),
       })
 
       console.log(nodemailer.getTestMessageUrl(message))

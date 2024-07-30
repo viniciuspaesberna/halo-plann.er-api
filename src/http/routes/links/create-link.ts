@@ -1,10 +1,9 @@
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
-
 import { z } from 'zod'
 
-import { BadRequestError } from '../../_errors/bad-request-error'
 import { prisma } from '../../../lib/prisma'
+import { BadRequestError } from '../../_errors/bad-request-error'
 
 export async function createLink(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().post(
@@ -25,7 +24,7 @@ export async function createLink(app: FastifyInstance) {
       const { title, url } = request.body
 
       const trip = await prisma.trip.findUnique({
-        where: { id: tripId }
+        where: { id: tripId },
       })
 
       if (!trip) {
@@ -37,7 +36,7 @@ export async function createLink(app: FastifyInstance) {
           title,
           url,
           trip_id: tripId,
-        }
+        },
       })
 
       return { linkId: link.id }

@@ -12,8 +12,11 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@rocketseat/eslint-config": "^2.2.2",
     "@types/node": "^20.14.10",
     "@types/nodemailer": "^6.4.15",
+    "eslint": "^8.57.0",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
     "prisma": "^5.16.2",
     "tsx": "^4.16.2",
     "typescript": "^5.5.3"

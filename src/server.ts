@@ -1,20 +1,21 @@
-import fastify from 'fastify'
 import cors from '@fastify/cors'
-
-import { serializerCompiler, validatorCompiler } from 'fastify-type-provider-zod'
-
-import { router } from './router'
-import { errorHandler } from './error-handler'
-
 import dotenv from 'dotenv'
+import fastify from 'fastify'
+import {
+  serializerCompiler,
+  validatorCompiler,
+} from 'fastify-type-provider-zod'
+
 import { env } from './env'
+import { errorHandler } from './error-handler'
+import { router } from './router'
 
 dotenv.config()
 
 const app = fastify()
 
 app.register(cors, {
-  origin: '*'
+  origin: '*',
 })
 
 app.setValidatorCompiler(validatorCompiler)

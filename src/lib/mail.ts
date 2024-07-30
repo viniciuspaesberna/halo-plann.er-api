@@ -9,8 +9,8 @@ export async function getMailClient() {
     secure: false,
     auth: {
       user: account.user,
-      pass: account.pass
-    }
+      pass: account.pass,
+    },
   })
 
   return transporter

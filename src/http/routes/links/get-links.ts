@@ -1,8 +1,9 @@
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
-import { BadRequestError } from '../../_errors/bad-request-error'
+
 import { prisma } from '../../../lib/prisma'
+import { BadRequestError } from '../../_errors/bad-request-error'
 
 export async function getLinks(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().get(
@@ -19,7 +20,7 @@ export async function getLinks(app: FastifyInstance) {
 
       const trip = await prisma.trip.findUnique({
         where: { id: tripId },
-        include: { 
+        include: {
           links: true,
         },
       })
