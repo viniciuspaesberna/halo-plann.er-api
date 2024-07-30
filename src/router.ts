@@ -8,7 +8,7 @@ import { confirmParticipant } from './http/routes/participants/confirm-participa
 import { getParticipant } from './http/routes/participants/get-participant'
 import { getParticipants } from './http/routes/participants/get-participants'
 import { confirmTrip } from './http/routes/trips/confirm-trip'
-import { createInvite } from './http/routes/trips/create-invite'
+import { createInvites } from './http/routes/trips/create-invites'
 import { createTrip } from './http/routes/trips/create-trip'
 import { getTripDetails } from './http/routes/trips/get-trip-details'
 import { getTrips } from './http/routes/trips/get-trips'
@@ -20,7 +20,7 @@ export const router = async (app: FastifyInstance) => {
   app.register(createTrip)
   app.register(updateTrip)
   app.register(confirmTrip)
-  app.register(createInvite)
+  app.register(createInvites)
 
   app.register(getParticipant)
   app.register(getParticipants)
