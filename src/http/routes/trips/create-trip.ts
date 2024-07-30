@@ -54,6 +54,17 @@ export const createTrip = async (app: FastifyInstance) => {
           throw new BadRequestError('Invalid trip end date')
         }
 
+        let validatedEmailsToInvite = emails_to_invite
+
+        if(emails_to_invite.includes(owner_email)) {
+
+          if (emails_to_invite.includes(owner_email)) {
+            validatedEmailsToInvite = emails_to_invite.filter(
+              (email) => email !== owner_email,
+            )
+          }
+        }
+
         const trip = await prisma.trip.create({
           data: {
             destination,
@@ -67,7 +78,7 @@ export const createTrip = async (app: FastifyInstance) => {
                     name: owner_name,
                     is_owner: true,
                   },
-                  ...emails_to_invite.map(email => {
+                  ...validatedEmailsToInvite.map(email => {
                     return { email }
                   })
                 ]
