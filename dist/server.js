@@ -19,6 +19,6 @@ app.setValidatorCompiler(fastify_type_provider_zod_1.validatorCompiler);
 app.setSerializerCompiler(fastify_type_provider_zod_1.serializerCompiler);
 app.setErrorHandler(error_handler_1.errorHandler);
 app.register(router_1.router);
-app.listen({ port: env_1.env.PORT }).then(() => {
+app.listen({ port: env_1.env.PORT || 3333, host: '0.0.0.0' }).then(() => {
     console.log(`Server running ${env_1.env.API_BASE_URL}`);
 });
