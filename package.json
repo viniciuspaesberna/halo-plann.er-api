@@ -1,9 +1,10 @@
 {
   "name": "halo-plann.er-api",
   "version": "1.0.0",
-  "main": "build/src/index.js",
+  "main": "dist/server.js",
   "scripts": {
     "start": "node .",
+    "build": "tsc",
     "dev": "tsx watch --env-file .env src/server.ts",
     "db:migrate": "npx prisma migrate dev",
     "db:studio": "npx prisma studio"
