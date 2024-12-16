@@ -25,6 +25,6 @@ app.setErrorHandler(errorHandler)
 
 app.register(router)
 
-app.listen({ port: env.PORT }).then(() => {
+app.listen({ port: env.PORT || 3333, host: '0.0.0.0' }).then(() => {
   console.log(`Server running ${env.API_BASE_URL}`)
 })
